@@ -29,16 +29,16 @@
             }
         }
 
-.home-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 800px;
-    width: 100%;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-}
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
         .game-container {
             display: none;
@@ -114,14 +114,14 @@
             text-align: center;
         }
 
-.game-stats {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 600px;
-    margin-bottom: 10px;
-    font-size: 18px;
-}
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
 
         .input-section {
             margin: 20px 0;
@@ -326,12 +326,12 @@
             background: #2c3e50;
         }
 
-.tab-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    width: 100%;
-}
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+        }
 
         .tab {
             padding: 10px 20px;
@@ -347,28 +347,28 @@
             background: #3498db;
         }
 
-.tab-content {
-    width: 100%;
-    max-width: 800px;
-    padding: 20px;
-    background: rgba(44, 62, 80, 0.8);
-    border-radius: 0 0 10px 10px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.tab-panel {
-    display: none;
-    margin: 0 auto;
-}
-
-.tab-panel.active {
-    display: block;
-}
-
-.collected-card.red {
-    color: #e74c3c;
-}
+        .tab-content {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(44, 62, 80, 0.8);
+            border-radius: 0 0 10px 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .tab-panel {
+            display: none;
+            margin: 0 auto;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .collected-card.red {
+            color: #e74c3c;
+        }
 
     </style>
 </head>
@@ -470,7 +470,10 @@ game, 不建議超過9中文字"></textarea>
         text-align: center;
         padding: 10px;
     ">
-        Created by Aaron Shi. V2 released in April 2025.
+        Created by Aaron Shi. V2 released in April 2025. 
+        <a href="https://sites.google.com/view/aaronshi" target="_blank">
+            <img src="https://alittlemoreenglish.weebly.com/uploads/2/6/6/3/26638990/favicon-32x32_orig.png" alt="Site Icon" class="footer-icon">
+        </a>
     </div>
 
     <script>
@@ -486,43 +489,42 @@ game, 不建議超過9中文字"></textarea>
     class Deck {
         constructor(words) {
             this.words = words || [
-{chinese: '教室', english: 'classroom'},
-{chinese: '課本', english: 'textbook'},
-{chinese: '老師', english: 'teacher'},
-{chinese: '學生', english: 'student'},
-{chinese: '作業', english: 'homework'},
-{chinese: '下課時間', english: 'recess'},
-{chinese: '課程', english: 'course'},
-{chinese: '數學', english: 'math'},
-{chinese: '英文', english: 'English'},
-{chinese: '自然', english: 'science'},
-{chinese: '社會', english: 'social studies'},
-{chinese: '美術', english: 'art'},
-{chinese: '音樂', english: 'music'},
-{chinese: '歷史', english: 'history'},
-{chinese: '地理', english: 'geography'},
-{chinese: '校車', english: 'school bus'},
-{chinese: '校園', english: 'campus'},
-{chinese: '黑板', english: 'blackboard'},
-{chinese: '粉筆', english: 'chalk'},
-{chinese: '白板', english: 'whiteboard'},
-{chinese: '投影機', english: 'projector'},
-{chinese: '講桌', english: 'podium'},
-{chinese: '椅子', english: 'chair'},
-{chinese: '桌子', english: 'desk'},
-{chinese: '圖書館', english: 'library'},
-{chinese: '書包', english: 'school bag'},
-{chinese: '文具', english: 'stationery'},
-{chinese: '鉛筆', english: 'pencil'},
-{chinese: '原子筆', english: 'pen'},
-{chinese: '橡皮擦', english: 'eraser'},
-{chinese: '尺', english: 'ruler'},
-{chinese: '書局', english: 'bookstore'},
-{chinese: '學期', english: 'semester'},
-{chinese: '學分', english: 'credit'},
-{chinese: '畢業', english: 'graduate'},
-{chinese: '分數', english: 'score'},
-
+                {chinese: '教室', english: 'classroom'},
+                {chinese: '課本', english: 'textbook'},
+                {chinese: '老師', english: 'teacher'},
+                {chinese: '學生', english: 'student'},
+                {chinese: '作業', english: 'homework'},
+                {chinese: '下課時間', english: 'recess'},
+                {chinese: '課程', english: 'course'},
+                {chinese: '數學', english: 'math'},
+                {chinese: '英文', english: 'English'},
+                {chinese: '自然', english: 'science'},
+                {chinese: '社會', english: 'social studies'},
+                {chinese: '美術', english: 'art'},
+                {chinese: '音樂', english: 'music'},
+                {chinese: '歷史', english: 'history'},
+                {chinese: '地理', english: 'geography'},
+                {chinese: '校車', english: 'school bus'},
+                {chinese: '校園', english: 'campus'},
+                {chinese: '黑板', english: 'blackboard'},
+                {chinese: '粉筆', english: 'chalk'},
+                {chinese: '白板', english: 'whiteboard'},
+                {chinese: '投影機', english: 'projector'},
+                {chinese: '講桌', english: 'podium'},
+                {chinese: '椅子', english: 'chair'},
+                {chinese: '桌子', english: 'desk'},
+                {chinese: '圖書館', english: 'library'},
+                {chinese: '書包', english: 'school bag'},
+                {chinese: '文具', english: 'stationery'},
+                {chinese: '鉛筆', english: 'pencil'},
+                {chinese: '原子筆', english: 'pen'},
+                {chinese: '橡皮擦', english: 'eraser'},
+                {chinese: '尺', english: 'ruler'},
+                {chinese: '書局', english: 'bookstore'},
+                {chinese: '學期', english: 'semester'},
+                {chinese: '學分', english: 'credit'},
+                {chinese: '畢業', english: 'graduate'},
+                {chinese: '分數', english: 'score'}
             ];
             this.reset();
         }

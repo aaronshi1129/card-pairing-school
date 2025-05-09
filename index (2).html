@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="." />
+    <title>Vocabulary Card Pairing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: white;
+            box-sizing: border-box;
+        }
+
+        @keyframes fadeOutSlide {
+            0% {
+                opacity: 1;
+                transform: scale(1) rotate(0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8) rotate(15deg) translateY(50px);
+            }
+        }
+
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .deck {
+            width: 140px;
+            height: 200px;
+            background: #2c3e50;
+            border-radius: 10px;
+            border: 2px solid #34495e;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .deck:hover {
+            transform: scale(1.05);
+        }
+
+        .deck::after {
+            content: "♠️♥️♣️♦️";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+        }
+
+        .drawn-card {
+            width: 140px;
+            height: 200px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #34495e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 24px;
+            color: black;
+            position: relative;
+            transition: transform 0.3s, opacity 0.3s;
+            opacity: 0;
+            transform: translateX(-50px);
+            padding: 10px;
+        }
+
+        .drawn-card.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .drawn-card.red {
+            color: #e74c3c;
+        }
+
+        .chinese-word {
+            font-size: 36px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .input-section {
+            margin: 20px 0;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+
+        .primary-btn {
+            background: #3498db;
+        }
+
+        .primary-btn:hover {
+            background: #2980b9;
+        }
+
+        .danger-btn {
+            background: #e74c3c;
+        }
+
+        .danger-btn:hover {
+            background: #c0392b;
+        }
+
+        .success-btn {
+            background: #2ecc71;
+        }
+
+        .success-btn:hover {
+            background: #27ae60;
+        }
+
+        .player-hand {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 800px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .collected-card {
+            width: 100px;
+            height: 140px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #34495e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 16px;
+            padding: 5px;
+            color: black;
+        }
+
+        .collected-card.removing {
+            animation: fadeOutSlide 0.5s ease-out forwards;
+        }
+
+        .win-message, .score-display {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        .win-message {
+            color: #2ecc71;
+            display: none;
+        }
+
+        .score-display {
+            color: #f1c40f;
+            margin-bottom: 20px;
+        }
+
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .feedback.correct {
+            background-color: rgba(46, 204, 113, 0.9);
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+
+        .feedback.visible {
+            opacity: 1;
+        }
+
+        .instructions {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: flex;
+            justify-content: center;
+        }
+
+        .instructions h2 {
+            color: #3498db;
+            text-align: center;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+
+        }
+
+        .vocab-form {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: 750px;
+            width: 100%;
+        }
+
+        .vocab-form textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            resize: vertical;
+        }
+
+        .vocab-form input[type="text"] {
+            width: calc(100% - 20px);
+            margin: 10px 0;
+        }
+
+        .decks-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .deck-option {
+            background: #34495e;
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .deck-option:hover {
+            transform: scale(1.05);
+            background: #2c3e50;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background: #2c3e50;
+        }
+
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #34495e;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin: 0 5px;
+        }
+
+        .tab.active {
+            background: #3498db;
+        }
+
+        .tab-content {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(44, 62, 80, 0.8);
+            border-radius: 0 0 10px 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .tab-panel {
+            display: none;
+            margin: 0 auto;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .collected-card.red {
+            color: #e74c3c;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div class="home-container" id="homeContainer">
+        <h1>Vocabulary Card Pairing</h1>
+        
+        <div class="tab-container">
+            <button class="tab active" data-tab="instructions">Instructions</button>
+            <button class="tab" data-tab="custom-vocab">Custom Vocabulary</button>
+            <button class="tab" data-tab="saved-decks">Saved Decks</button>
+        </div>
+        
+        <div class="tab-content">
+            <div class="tab-panel active" id="instructions">
+                <div class="instructions">
+                    <h2>How to Play</h2>
+                    <ul>
+                        <li>Click on the deck to draw a card showing a word in a foreign language.</li>
+                        <li>Type the English translation and press Enter or click Submit.</li>
+                        <li>Collect pairs by matching cards with the same rank (A, 2, 3, etc.).</li>
+                        <li>When you collect four cards of the same rank, they'll be automatically removed.</li>
+                        <li>The game ends when you've collected 10 pairs.</li>
+                        <li>If you don't know a word, you can skip it and it will go back into the deck.</li>
+                    </ul>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn primary-btn" id="startDefaultBtn">Start Game with Default Deck</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-panel" id="custom-vocab">
+                <div class="vocab-form">
+                    <h2>Create Custom Vocabulary Deck</h2>
+                    <p>Enter a name for your deck:</p>
+                    <input type="text" id="deckNameInput" placeholder="Deck Name">
+                    
+                    <p>Enter vocabulary pairs (one per line, separated by comma, for Chinese as the foreign language, it is recommended to be less than 9 characters):</p>
+                    <p><small>Format: English, Foreign Language</small></p>
+                    <textarea id="vocabInput" placeholder="example, 範例
+vocabulary, 建議3-6中文字
+game, 不建議超過9中文字"></textarea>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <button class="btn primary-btn" id="saveVocabBtn">Save Deck</button>
+                        <button class="btn success-btn" id="startCustomBtn">Save & Start Game</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-panel" id="saved-decks">
+                <h2>Your Saved Decks</h2>
+                <div class="decks-container" id="savedDecksContainer">
+                    <!-- Saved decks will be listed here -->
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn danger-btn" id="clearDecksBtn">Clear All Saved Decks</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Page -->
+    <div class="game-container" id="gameContainer">
+        <button class="back-btn" id="backToHomeBtn">← Back</button>
+<h1 id="gameTitleHeader">Vocabulary Card Pairing</h1>
+<div class="game-stats">
+    <div class="timer" id="timer">Time: 0:00</div>
+    <div class="card-counter" id="cardCounter">Cards remaining: 52</div>
+</div>
+<div class="score-display" id="scoreDisplay">Pairs collected: 0</div>
+        
+        <div class="game-area">
+            <div class="deck" id="deck"></div>
+            <div class="drawn-card" id="drawnCard"></div>
+        </div>
+        
+        <div class="input-section">
+            <input type="text" id="wordInput" placeholder="Type English Here">
+            <button class="btn primary-btn" id="submitBtn">Submit</button>
+            <button class="btn danger-btn" id="skipBtn">Skip Card</button>
+        </div>
+        
+        <button class="btn primary-btn" id="resetBtn">New Game</button>
+        <div class="card-counter" id="cardCounter"></div>
+        <div class="win-message" id="winMessage">Congratulations! You've completed the game!</div>
+        <div class="player-hand" id="playerHand"></div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div style="
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        color: #7f8c8d;
+        text-align: center;
+        padding: 10px;
+    ">
+        Created by Aaron Shi. V2 released in April 2025. 
+        <a href="https://sites.google.com/view/aaronshi" target="_blank">
+            <img src="https://alittlemoreenglish.weebly.com/uploads/2/6/6/3/26638990/favicon-32x32_orig.png" alt="Site Icon" class="footer-icon">
+        </a>
+    </div>
+
+    <script>
+    class Card {
+        constructor(suit, value, chinese, english) {
+            this.suit = suit;
+            this.value = value;
+            this.chinese = chinese;
+            this.english = english;
+        }
+    }
+
+    class Deck {
+        constructor(words) {
+            this.words = words || [
+                {chinese: '教室', english: 'classroom'},
+                {chinese: '課本', english: 'textbook'},
+                {chinese: '老師', english: 'teacher'},
+                {chinese: '學生', english: 'student'},
+                {chinese: '作業', english: 'homework'},
+                {chinese: '下課時間', english: 'recess'},
+                {chinese: '課程', english: 'course'},
+                {chinese: '數學', english: 'math'},
+                {chinese: '英文', english: 'English'},
+                {chinese: '自然', english: 'science'},
+                {chinese: '社會', english: 'social studies'},
+                {chinese: '美術', english: 'art'},
+                {chinese: '音樂', english: 'music'},
+                {chinese: '歷史', english: 'history'},
+                {chinese: '地理', english: 'geography'},
+                {chinese: '校車', english: 'school bus'},
+                {chinese: '校園', english: 'campus'},
+                {chinese: '黑板', english: 'blackboard'},
+                {chinese: '粉筆', english: 'chalk'},
+                {chinese: '白板', english: 'whiteboard'},
+                {chinese: '投影機', english: 'projector'},
+                {chinese: '講桌', english: 'podium'},
+                {chinese: '椅子', english: 'chair'},
+                {chinese: '桌子', english: 'desk'},
+                {chinese: '圖書館', english: 'library'},
+                {chinese: '書包', english: 'school bag'},
+                {chinese: '文具', english: 'stationery'},
+                {chinese: '鉛筆', english: 'pencil'},
+                {chinese: '原子筆', english: 'pen'},
+                {chinese: '橡皮擦', english: 'eraser'},
+                {chinese: '尺', english: 'ruler'},
+                {chinese: '書局', english: 'bookstore'},
+                {chinese: '學期', english: 'semester'},
+                {chinese: '學分', english: 'credit'},
+                {chinese: '畢業', english: 'graduate'},
+                {chinese: '分數', english: 'score'}
+            ];
+            this.reset();
+        }
+
+        reset() {
+            const suits = ['♠', '♥', '♣', '♦'];
+            const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            this.cards = [];
+            
+            // Use all the words we have in the deck, but ensure we have at least 52 cards
+            let words = [...this.words];
+            while (words.length < 52) {
+                words = words.concat(this.words);
+            }
+            
+            let wordIndex = 0;
+            for (let suit of suits) {
+                for (let value of values) {
+                    this.cards.push(new Card(suit, value, words[wordIndex].chinese, words[wordIndex].english));
+                    wordIndex = (wordIndex + 1) % words.length;
+                }
+            }
+            
+            this.shuffle();
+        }
+
+        shuffle() {
+            for (let i = this.cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+            }
+        }
+
+        draw() {
+            if (this.cards.length === 0) return null;
+            return this.cards.pop();
+        }
+
+        remainingCards() {
+            return this.cards.length;
+        }
+
+        addToBottom(card) {
+            this.cards.unshift(card);
+        }
+    }
+
+    // Storage utilities
+    const DeckStorage = {
+        save: function(name, words) {
+            const decks = this.getAllDecks();
+            decks[name] = words;
+            localStorage.setItem('vocabulary_decks', JSON.stringify(decks));
+        },
+        
+        getAllDecks: function() {
+            const decks = localStorage.getItem('vocabulary_decks');
+            return decks ? JSON.parse(decks) : {};
+        },
+        
+        getDeck: function(name) {
+            const decks = this.getAllDecks();
+            return decks[name] || null;
+        },
+        
+        deleteDeck: function(name) {
+            const decks = this.getAllDecks();
+            if (decks[name]) {
+                delete decks[name];
+                localStorage.setItem('vocabulary_decks', JSON.stringify(decks));
+                return true;
+            }
+            return false;
+        },
+        
+        clearAllDecks: function() {
+            localStorage.removeItem('vocabulary_decks');
+        }
+    };
+
+    const PAIRS_TO_WIN = 10;
+
+    let deck;
+    let currentCard = null;
+    let playerHand = [];
+    let startTime;
+    let timerInterval;
+    let pairCounter = 0;
+    let currentDeckName = "School [Default]";
+
+    // DOM Elements
+    const homeContainer = document.getElementById('homeContainer');
+    const gameContainer = document.getElementById('gameContainer');
+    const deckElement = document.getElementById('deck');
+    const drawnCardElement = document.getElementById('drawnCard');
+    const resetBtn = document.getElementById('resetBtn');
+    const cardCounter = document.getElementById('cardCounter');
+    const wordInput = document.getElementById('wordInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const playerHandElement = document.getElementById('playerHand');
+    const winMessage = document.getElementById('winMessage');
+    const timerElement = document.getElementById('timer');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const skipBtn = document.getElementById('skipBtn');
+    const startDefaultBtn = document.getElementById('startDefaultBtn');
+    const backToHomeBtn = document.getElementById('backToHomeBtn');
+    const saveVocabBtn = document.getElementById('saveVocabBtn');
+    const startCustomBtn = document.getElementById('startCustomBtn');
+    const deckNameInput = document.getElementById('deckNameInput');
+    const vocabInput = document.getElementById('vocabInput');
+    const savedDecksContainer = document.getElementById('savedDecksContainer');
+    const clearDecksBtn = document.getElementById('clearDecksBtn');
+    const gameTitleHeader = document.getElementById('gameTitleHeader');
+    const tabButtons = document.querySelectorAll('.tab');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    // Tab functionality
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            
+            // Update button active state
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update tab panel visibility
+            tabPanels.forEach(panel => panel.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Initialize tab system
+    function initTabs() {
+        tabButtons[0].click();
+    }
+
+    // Initialize home page
+    function initHomePage() {
+        updateSavedDecksList();
+        initTabs();
+    }
+
+    // Update saved decks list
+    function updateSavedDecksList() {
+        const decks = DeckStorage.getAllDecks();
+        savedDecksContainer.innerHTML = '';
+        
+        if (Object.keys(decks).length === 0) {
+            savedDecksContainer.innerHTML = '<p>No saved decks yet. Create one in the Custom Vocabulary tab.</p>';
+            return;
+        }
+        
+        for (const deckName in decks) {
+            const deckOption = document.createElement('div');
+            deckOption.className = 'deck-option';
+            deckOption.innerHTML = `
+                <h3>${deckName}</h3>
+                <p>${decks[deckName].length} vocabulary pairs</p>
+                <div>
+                    <button class="btn primary-btn load-deck-btn" data-name="${deckName}">Play</button>
+                    <button class="btn danger-btn delete-deck-btn" data-name="${deckName}">Delete</button>
+                </div>
+            `;
+            savedDecksContainer.appendChild(deckOption);
+        }
+        
+        // Add event listeners to the newly created buttons
+        document.querySelectorAll('.load-deck-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const deckName = this.getAttribute('data-name');
+                loadAndStartDeck(deckName);
+            });
+        });
+        
+        document.querySelectorAll('.delete-deck-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const deckName = this.getAttribute('data-name');
+                if (confirm(`Are you sure you want to delete the deck "${deckName}"?`)) {
+                    DeckStorage.deleteDeck(deckName);
+                    updateSavedDecksList();
+                }
+            });
+        });
+    }
+
+    // Parse custom vocabulary input
+    function parseVocabInput(input) {
+        const lines = input.trim().split('\n');
+        const words = [];
+        
+        for (const line of lines) {
+            if (line.trim() === '') continue;
+            
+            const parts = line.split(',');
+            if (parts.length >= 2) {
+                const english = parts[0].trim();
+                const chinese = parts[1].trim();
+                
+                if (english && chinese) {
+                    words.push({ english, chinese });
+                }
+            }
+        }
+        
+        return words;
+    }
+
+    // Load and start a deck
+    function loadAndStartDeck(deckName) {
+        let words;
+        
+        if (deckName === "School [Default]") {
+            // Use default vocabulary
+            words = null;
+        } else {
+            // Load saved deck
+            words = DeckStorage.getDeck(deckName);
+            if (!words) {
+                alert(`Deck "${deckName}" not found.`);
+                return;
+            }
+        }
+        
+        // Start game with the selected deck
+        currentDeckName = deckName;
+        gameTitleHeader.textContent = `Vocabulary Card Pairing (${deckName})`;
+        startGame(words);
+    }
+
+    // Game initialization
+    function startGame(words) {
+        // Hide home, show game
+        homeContainer.style.display = 'none';
+        gameContainer.style.display = 'flex';
+        
+        // Initialize the deck
+        deck = new Deck(words);
+        playerHand = [];
+        pairCounter = 0;
+        currentCard = null;
+        playerHandElement.innerHTML = '';
+        winMessage.style.display = 'none';
+        drawnCardElement.classList.remove('visible');
+        
+        // Start timer
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+        
+        // Update UI
+        updateCardCounter();
+        updatePairCounter();
+        wordInput.value = '';
+        
+        // Focus on the word input
+        wordInput.focus();
+    }
+
+    function updateTimer() {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateCardCounter() {
+        cardCounter.textContent = `Cards remaining: ${deck ? deck.remainingCards() : 0}`;
+    }
+
+    function drawCard() {
+        if (!deck) return;
+        
+        currentCard = deck.draw();
+        if (currentCard) {
+            drawnCardElement.classList.remove('visible');
+            setTimeout(() => {
+                drawnCardElement.innerHTML = `
+                    <div>${currentCard.value}${currentCard.suit}</div>
+                    <div class="chinese-word">${currentCard.chinese}</div>
+                `;
+                drawnCardElement.classList.remove('red');
+                if (currentCard.suit === '♥' || currentCard.suit === '♦') {
+                    drawnCardElement.classList.add('red');
+                }
+                drawnCardElement.classList.add('visible');
+                wordInput.focus();
+            }, 300);
+            updateCardCounter();
+        }
+    }
+
+    function updatePairCounter() {
+        scoreDisplay.textContent = `Pairs collected: ${pairCounter}`;
+    }
+
+    function showFeedback(isCorrect) {
+        const feedbackElement = document.getElementById('feedback');
+        feedbackElement.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
+        feedbackElement.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+        feedbackElement.classList.add('visible');
+        
+        setTimeout(() => {
+            feedbackElement.classList.remove('visible');
+        }, 1000);
+    }
+
+    function checkFourOfAKind() {
+        const valueCounts = {};
+        playerHand.forEach(card => {
+            valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
+        });
+        
+        // Check if won by total pairs
+        if (pairCounter >= PAIRS_TO_WIN) {
+            endGame();
+            return true;
+        }
+        
+        return Object.values(valueCounts).some(count => count >= 4);
+    }
+
+function endGame() {
+    clearInterval(timerInterval);
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(timeSpent / 60);
+    const seconds = timeSpent % 60;
+    const remainingCards = deck ? deck.remainingCards() : 0;
+    
+    // Create end game overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: #2c3e50;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        color: white;
+        max-width: 80%;
+    `;
+    
+    content.innerHTML = `
+        <h2 style="color: #2ecc71; margin-bottom: 20px;">Congratulations!</h2>
+        <p style="font-size: 20px; margin: 10px 0;">You have successfully collected ${pairCounter} pairs!</p>
+        <p style="font-size: 20px; margin: 10px 0;">Deck: ${currentDeckName}</p>
+        <p style="font-size: 20px; margin: 10px 0;">Time spent: ${minutes}:${seconds.toString().padStart(2, '0')}</p>
+        <p style="font-size: 20px; margin: 10px 0;">Cards remaining in deck: ${remainingCards}</p>
+        <button id="returnHomeBtn" class="btn primary-btn" style="margin-top: 20px;">Return to Home</button>
+        <button id="playAgainBtn" class="btn success-btn" style="margin-top: 20px; margin-left: 10px;">Play Again</button>
+    `;
+    
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+    
+    // Add event listeners to buttons - FIXED BY WAITING FOR DOM TO UPDATE
+    setTimeout(() => {
+        document.getElementById('returnHomeBtn').addEventListener('click', function() {
+            document.body.removeChild(overlay);
+            showHomePage();
+        });
+        
+        document.getElementById('playAgainBtn').addEventListener('click', function() {
+            document.body.removeChild(overlay);
+            startGame(deck ? deck.words : null);
+        });
+    }, 0);
+}
+
+function calculateScore() {
+    const valueCounts = {};
+    playerHand.forEach(card => {
+        valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
+    });
+    
+    let cardsToRemove = [];
+    let pairsFound = 0;
+
+    // Check for four of a kind first
+    for (let value in valueCounts) {
+        if (valueCounts[value] >= 4) {
+            pairsFound += 2; // Count four of a kind as 2 pairs
+            // Mark all cards of this value for removal
+            playerHand.forEach((card, index) => {
+                if (card.value === value) {
+                    cardsToRemove.push(index);
+                }
+            });
+        }
+    }
+
+    // Then check for pairs
+    if (cardsToRemove.length === 0) { // Only check pairs if no four of a kind was found
+        for (let value in valueCounts) {
+            if (valueCounts[value] >= 2) {
+                const pairs = Math.floor(valueCounts[value] / 2);
+                pairsFound += pairs;
+                
+                // Find the cards to remove for this value
+                let pairsMarked = 0;
+                playerHand.forEach((card, index) => {
+                    if (card.value === value && pairsMarked < pairs * 2) {
+                        cardsToRemove.push(index);
+                        pairsMarked++;
+                    }
+                });
+            }
+        }
+    }
+
+    // Animate and remove cards
+    const cardElements = playerHandElement.getElementsByClassName('collected-card');
+    cardsToRemove.forEach(index => {
+        if (cardElements[index]) {
+            cardElements[index].classList.add('removing');
+        }
+    });
+
+    // Wait for animation to complete before removing cards
+    setTimeout(() => {
+        // Remove cards from highest index to lowest to avoid shifting issues
+        cardsToRemove.sort((a, b) => b - a).forEach(index => {
+            playerHand.splice(index, 1);
+        });
+        // Update the visual display of cards
+        updatePlayerHandDisplay();
+    }, 500);
+
+    pairCounter += pairsFound;
+    
+    // Check if reached target number of pairs
+    if (pairCounter >= PAIRS_TO_WIN) {
+        endGame();
+    }
+    
+    return pairsFound;
+}
+
+function updatePlayerHandDisplay() {
+    playerHandElement.innerHTML = '';
+    playerHand.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = `collected-card${card.suit === '♥' || card.suit === '♦' ? ' red' : ''}`;
+        cardElement.innerHTML = `
+            <div>${card.value}${card.suit}</div>
+            <div>${card.chinese}</div>
+            <div>${card.english}</div>
+        `;
+        playerHandElement.appendChild(cardElement);
+    });
+}
+
+function handleSubmit() {
+    if (!currentCard) return;
+    
+    const isCorrect = wordInput.value.toLowerCase() === currentCard.english.toLowerCase();
+    showFeedback(isCorrect);
+    
+    if (isCorrect) {
+        playerHand.push(currentCard);
+        const cardElement = document.createElement('div');
+        cardElement.className = `collected-card${currentCard.suit === '♥' || currentCard.suit === '♦' ? ' red' : ''}`;
+        cardElement.innerHTML = `
+            <div>${currentCard.value}${currentCard.suit}</div>
+            <div>${currentCard.chinese}</div>
+            <div>${currentCard.english}</div>
+        `;
+        playerHandElement.appendChild(cardElement);
+        
+        const pairsEarned = calculateScore();
+        updatePairCounter();
+        
+        if (checkFourOfAKind() || pairCounter >= PAIRS_TO_WIN) {
+            endGame();
+        } else {
+            // Automatically draw the next card if there are cards remaining
+            setTimeout(() => {
+                if (deck && deck.remainingCards() > 0) {
+                    drawCard();
+                }
+            }, 500);
+        }
+        
+        currentCard = null;
+        drawnCardElement.classList.remove('visible');
+    }
+    
+    wordInput.value = '';
+    wordInput.focus();
+}
+
+function handleSkip() {
+    if (!currentCard || !deck) return;
+    
+    // Add current card to bottom of deck
+    deck.addToBottom(currentCard);
+    
+    // Update card counter since we moved a card
+    updateCardCounter();
+    
+    // Clear current card display
+    drawnCardElement.classList.remove('visible');
+    
+    // Draw next card after a short delay
+    setTimeout(() => {
+        if (deck.remainingCards() > 0) {
+            drawCard();
+        }
+    }, 500);
+    
+    // Clear input field
+    wordInput.value = '';
+    wordInput.focus();
+}
+
+function showHomePage() {
+    // Clean up game state
+    clearInterval(timerInterval);
+    currentCard = null;
+    
+    // Show home container, hide game container
+    homeContainer.style.display = 'flex';
+    gameContainer.style.display = 'none';
+    
+    // Update the saved decks list
+    updateSavedDecksList();
+}
+
+// Event Listeners
+deckElement.addEventListener('click', drawCard);
+submitBtn.addEventListener('click', handleSubmit);
+resetBtn.addEventListener('click', function() {
+    startGame(deck ? deck.words : null);
+});
+wordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSubmit();
+});
+skipBtn.addEventListener('click', handleSkip);
+startDefaultBtn.addEventListener('click', function() {
+    loadAndStartDeck("School [Default]");
+});
+backToHomeBtn.addEventListener('click', showHomePage);
+
+// Custom vocabulary form listeners
+saveVocabBtn.addEventListener('click', function() {
+    const deckName = deckNameInput.value.trim();
+    if (!deckName) {
+        alert("Please enter a name for your deck.");
+        return;
+    }
+    
+    const words = parseVocabInput(vocabInput.value);
+    if (words.length === 0) {
+        alert("Please enter at least one valid vocabulary pair.");
+        return;
+    }
+    
+    DeckStorage.save(deckName, words);
+    alert(`Deck "${deckName}" has been saved!`);
+    updateSavedDecksList();
+    
+    // Switch to saved decks tab
+    document.querySelector('.tab[data-tab="saved-decks"]').click();
+});
+
+startCustomBtn.addEventListener('click', function() {
+    const deckName = deckNameInput.value.trim();
+    if (!deckName) {
+        alert("Please enter a name for your deck.");
+        return;
+    }
+    
+    const words = parseVocabInput(vocabInput.value);
+    if (words.length === 0) {
+        alert("Please enter at least one valid vocabulary pair.");
+        return;
+    }
+    
+    DeckStorage.save(deckName, words);
+    loadAndStartDeck(deckName);
+});
+
+clearDecksBtn.addEventListener('click', function() {
+    if (confirm("Are you sure you want to delete all saved decks?")) {
+        DeckStorage.clearAllDecks();
+        updateSavedDecksList();
+    }
+});
+
+// Initialize the home page
+initHomePage();
+</script>
